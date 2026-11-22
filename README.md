@@ -1,42 +1,25 @@
-# Ready Player Pi — Test Setup
-To ensure all libraries are installed and it is compiled correctly there is 2 python scripts which install/update the libraries, compiles the project and run the executable. 
+# Ready Player Pi
 
-To run the server use:  
+A cooperative two-player game across three Raspberry Pis: one server and two touchscreen controllers. In **GyroPi**, one player tilts a controller to roll a ball through a maze that only the other player can see. In **NotePi**, one player plays notes and the other gets Wordle-style feedback.
 
-run_server.sh by writing the command "bash run_server.s" in the terminal on the rpi
+3rd-semester group project (8 students), Software Technology, Aarhus University. Grade 12.
 
-To run a client use:  
+![Final setup](docs/images/final-product.jpg)
 
-run_client.sh by writing the command "bash run_client.sh" in the terminal on the rpi
+## How it works
+- Clients and server communicate over TCP with newline-framed JSON messages.
+- The server forks a separate process for each running game.
+- Sensor and network threads update the Qt GUI through its event queue, so the GUI never blocks.
 
-This installs the libraries:
-- nlohmann JSON
-- ALSA
-- Qt6
+## My part
+- Designed, built and tested the Qt GUI: 16 classes, all sharing a `BaseMenu` base class.
+- Worked on the TCP/JSON communication and the lobby use cases.
 
-
-## Kør — 3 RPi'er
-Antag Server RPi har IP `192.168.1.100`.
-
-```
-RPi 1 (Server):   bash run_server.sh
-RPi 2 (Spiller):  bash run_client.sh 192.168.1.100
-RPi 3 (Spiller):  bash run_client.sh 192.168.1.100
+## Run
+```bash
+cmake -B build && cmake --build build
+./build/server                # server Pi, port 9000
+./build/client <server-ip>    # each controller
 ```
 
-## Kør — lokal test (1 maskine, 3 terminaler)
-```
-Terminal 1:  bash run_server.sh
-Terminal 2:  bash run_client.sh
-Terminal 3:  bash run_client.sh
-```
-
-## Flow
-1. Begge spillere starter `./client` og taster et username
-2. Spiller A vælger "1. Host Room" → får room-kode
-3. Spiller B vælger "2. Join Room" → taster room-koden
-4. Spiller A vælger spil (1. GyroPi / 2. NotePi)
-5. Server fork()'er → child = game room
-6. Roller tildeles tilfældigt (Performer / Communicator)
-7. GyroPi kører med hardcoded tilt data
-8. Ved goal → scoreboard vises → game room exits
+C++17 · Qt 6 · CMake · TCP sockets · JSON · Raspberry Pi
